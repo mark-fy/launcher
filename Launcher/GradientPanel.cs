@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace Launcher {
-    class GradientPanel : Panel {
+    internal class GradientPanel : Panel {
         public Color TopColor { get; set; }
         public Color BottomColor { get; set; }
         protected override void OnPaint(PaintEventArgs e) {
