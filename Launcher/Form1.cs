@@ -90,13 +90,14 @@ namespace Launcher {
             string client = Path.Combine(Environment.CurrentDirectory, "client.jar");
             string lwjgl = Path.Combine(Environment.CurrentDirectory, "files\\lwjgl.jar");
             string lwjglUtil = Path.Combine(Environment.CurrentDirectory, "files\\lwjgl_util.jar");
+            string minecraftJar = Path.Combine(Environment.CurrentDirectory, "files\\1.8.9.jar");
             string nativesFolder = Path.Combine(Environment.CurrentDirectory, "files\\1.8.9-natives");
             string minecraftFolder = Path.Combine(Environment.CurrentDirectory, ".minecraft");
 
             ProcessStartInfo startInfo = new ProcessStartInfo();
             startInfo.FileName = java;
             startInfo.WorkingDirectory = minecraftFolder;
-            startInfo.Arguments = $"-Xms1000M -Xmx8000M -Djava.library.path=\"" + nativesFolder + "\" -cp \"" + client + ";" + lwjgl + ";" + lwjglUtil + "\" net.minecraft.client.main.Main -uuid fc5bc365-aedf-30a8-8b89-04e462e29bde -username Steve -accessToken yes -version 1 --assetIndex 1.8";
+            startInfo.Arguments = $"-Xms1000M -Xmx8000M -Djava.library.path=\"" + nativesFolder + "\" -cp \"" + client + ";" + lwjgl + ";" + lwjglUtil + ";" + minecraftJar + "\" net.minecraft.client.main.Main -uuid fc5bc365-aedf-30a8-8b89-04e462e29bde -username Steve -accessToken yes -version 1 --assetIndex 1.8";
             try {
                 Process.Start(startInfo);
             } catch (Exception ex) {
