@@ -1,4 +1,5 @@
 *.lock
 *.vsidx
 
-bin/Debug
+Launcher/bin/Debug
+Launcher/obj/Debug
