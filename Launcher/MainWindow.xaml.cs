@@ -21,5 +21,13 @@ namespace Launcher {
         public MainWindow() {
             InitializeComponent();
         }
+
+        private void Button_Click(object sender, RoutedEventArgs e) {
+            this.Close();
+        }
+
+        private void Button1_Click(object sender, RoutedEventArgs e) {
+            WindowState = WindowState.Minimized;
+        }
     }
 }

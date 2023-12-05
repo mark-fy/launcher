@@ -5,8 +5,18 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Launcher"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
-    <Grid>
-        
+        Title="TopHat - Launcher" Height="450" Width="800" Background="{x:Null}" Foreground="{x:Null}" WindowStartupLocation="CenterScreen" ResizeMode="NoResize" Icon="/3000x.png" WindowStyle="None" AllowsTransparency="True">
+    <Grid Margin="0,0,297,174" Background="#FF161616">
+        <Grid.Effect>
+            <DropShadowEffect/>
+        </Grid.Effect>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="0*"/>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+        <Button x:Name="Button3" Content="_" Height="27" VerticalAlignment="Top" Width="22" Click="Button1_Click" BorderBrush="{x:Null}" BorderThickness="0" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" Background="{x:Null}" FontFamily="Segoe UI Semibold" Foreground="White" Grid.Column="1" HorizontalAlignment="Left" Margin="448,0,0,0"/>
+        <Button x:Name="Button2" Content="X" HorizontalAlignment="Left" Height="27" VerticalAlignment="Top" Width="22" Click="Button_Click" BorderBrush="{x:Null}" BorderThickness="0" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" Background="{x:Null}" FontFamily="Segoe UI Semibold" Margin="471,0,0,0" Grid.Column="1" Foreground="White"/>
+        <Label Content="TopHat - Launcher" Grid.ColumnSpan="2" VerticalAlignment="Top" Foreground="White" Background="{x:Null}" HorizontalAlignment="Center"/>
+        <Image Grid.ColumnSpan="2" HorizontalAlignment="Left" Height="25.96" VerticalAlignment="Top" Width="25.96"/>
     </Grid>
 </Window>
