@@ -11,7 +11,7 @@ namespace Launcher {
 
         private static ProgressBar progressBar;
 
-        public static bool downloadJar(ProgressBar progressBarC, string downloadUrl, string savePath) {
+        public static bool downloadFile(ProgressBar progressBarC, string downloadUrl, string savePath) {
             progressBar = progressBarC;
 
             try {
