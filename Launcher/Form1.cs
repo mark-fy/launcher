@@ -16,6 +16,9 @@ using static System.Windows.Forms.VisualStyles.VisualStyleElement.Button;
 namespace Launcher {
     public partial class Form1 : Form {
 
+        private string recode = Path.Combine(Environment.CurrentDirectory, "files\\Recode-b120423.jar");
+        private string old = Path.Combine(Environment.CurrentDirectory, "files\\Old-0.0.5.jar");
+
         // for rounded corners
         [DllImport("Gdi32.dll", EntryPoint = "CreateRoundRectRgn")]
         private static extern IntPtr round
@@ -35,32 +38,19 @@ namespace Launcher {
             InitializeComponent();
         }
 
+        private void Form1_Load(object sender, EventArgs e) {
+            this.FormBorderStyle = FormBorderStyle.None;
+            Region = Region.FromHrgn(round(0, 0, Width, Height, 20, 20));
+            launchButton.Region = Region.FromHrgn(round(0, 0, launchButton.Width, launchButton.Height, 8, 8));
+            SetupUtil.CreateFolder("files");
+        }
+
         private void button1_Click(object sender, EventArgs e) {
             Application.Exit();
         }
 
         private void button2_Click(object sender, EventArgs e) {
             WindowState = FormWindowState.Minimized;
-        }
-
-        private void Form1_Load(object sender, EventArgs e) {
-            this.FormBorderStyle = FormBorderStyle.None;
-            Region = Region.FromHrgn(round(0, 0, Width, Height, 20, 20));
-            gradientPanel1.Region = Region.FromHrgn(round(0, 0, gradientPanel1.Width, gradientPanel1.Height, 8, 8));
-            button3.Region = Region.FromHrgn(round(0, 0, button3.Width, button3.Height, 8, 8));
-            string avatarUrl = $"https://minotar.net/avatar/Steve/37.png";
-
-            using (WebClient webClient = new WebClient()) {
-                try {
-                    byte[] data = webClient.DownloadData(avatarUrl);
-
-                    using (System.IO.MemoryStream mem = new System.IO.MemoryStream(data)) {
-                        userPicture.Image = Image.FromStream(mem);
-                    }
-                } catch (Exception ex) {
-                    MessageBox.Show($"Error loading image: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
-            }
         }
 
         private void panel1_MouseDown(object sender, MouseEventArgs e) {
@@ -84,24 +74,47 @@ namespace Launcher {
             }
         }
 
-        // Launch Button
-        private void button3_Click(object sender, EventArgs e) {
-            string java = Path.Combine(Environment.CurrentDirectory, "files\\azul-1.8.9\\bin\\java.exe");
-            string client = Path.Combine(Environment.CurrentDirectory, "client.jar");
-            string lwjgl = Path.Combine(Environment.CurrentDirectory, "files\\lwjgl.jar");
-            string lwjglUtil = Path.Combine(Environment.CurrentDirectory, "files\\lwjgl_util.jar");
-            string minecraftJar = Path.Combine(Environment.CurrentDirectory, "files\\1.8.9.jar");
-            string nativesFolder = Path.Combine(Environment.CurrentDirectory, "files\\1.8.9-natives");
-            string minecraftFolder = Path.Combine(Environment.CurrentDirectory, ".minecraft");
+        private void launchButton_Click(object sender, EventArgs e) {
+            if (launchButton.Text.Equals("Install")) {
 
-            ProcessStartInfo startInfo = new ProcessStartInfo();
-            startInfo.FileName = java;
-            startInfo.WorkingDirectory = minecraftFolder;
-            startInfo.Arguments = $"-Xms1000M -Xmx8000M -Djava.library.path=\"" + nativesFolder + "\" -cp \"" + client + ";" + lwjgl + ";" + lwjglUtil + ";" + minecraftJar + "\" net.minecraft.client.main.Main -uuid fc5bc365-aedf-30a8-8b89-04e462e29bde -username Steve -accessToken yes -version 1 --assetIndex 1.8";
-            try {
-                Process.Start(startInfo);
-            } catch (Exception ex) {
-                MessageBox.Show(ex.Message, "Error");
+                if(comboBox1.SelectedItem.Equals("Recode-b120423")) {
+                    JarDownloader.downloadJar(progressBar1, "https://github.com/mark-fy/db/raw/main/Recode-b120423.jar", Path.Combine(Environment.CurrentDirectory, "files\\Recode-b120423.jar"));
+                    if (progressBar1.Value.Equals(100)) {
+                        launchButton.Text = "Launch";
+                    }
+                } else {
+                    /* currently not available to download
+                    JarDownloader.downloadJar(progressBar1, "https://github.com/mark-fy/db/raw/main/Recode-b120423.jar", Path.Combine(Environment.CurrentDirectory, "files\\Recode-b120423.jar"));
+                    if (progressBar1.Value.Equals(100)) {
+                        launchButton.Text = "Launch";
+                    }
+                    */
+                }
+            } else {
+                string java = Path.Combine(Environment.CurrentDirectory, "files\\azul-1.8.9\\bin\\java.exe");
+
+                string libraries = Path.Combine(Environment.CurrentDirectory, "files\\libraries");
+                string natives = Path.Combine(Environment.CurrentDirectory, "files\\natives");
+                string mainFolder = Path.Combine(Environment.CurrentDirectory, ".minecraft");
+
+                ProcessStartInfo startInfo = new ProcessStartInfo();
+                startInfo.FileName = java;
+                startInfo.WorkingDirectory = mainFolder;
+                startInfo.Arguments = $"-Xms1000M -Xmx8000M -Djava.library.path=\"" + natives + "\" -cp \"" + recode + ";" + libraries + "\" net.minecraft.client.main.Main -uuid fc5bc365-aedf-30a8-8b89-04e462e29bde -username Steve -accessToken yes -version 1 --assetIndex 1.8";
+                try {
+                    Process.Start(startInfo);
+                } catch (Exception ex) {
+                    MessageBox.Show(ex.Message, "Error");
+                }
+            }
+            
+        }
+
+        private void comboBox1_SelectedIndexChanged(object sender, EventArgs e) {
+            if (comboBox1.SelectedItem.Equals("Recode-b120423") && !FileChecker.checkForFile(recode)) {
+                launchButton.Text = "Install";
+            } else if(comboBox1.SelectedItem.Equals("Old-0.0.5") && FileChecker.checkForFile(old)) {
+                launchButton.Text = "Install";
             }
         }
     }
