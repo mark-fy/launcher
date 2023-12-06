@@ -46,21 +46,25 @@ namespace Launcher {
             launchButton.Enabled = false;
 
             if (!FileChecker.checkForDirectory(natives) || FileChecker.IsDirectoryEmpty(natives)) {
+                
                 Dictionary<string, string> downloadUrlsAndPathsNatives = new Dictionary<string, string>{
             { "https://github.com/mark-fy/db/raw/main/natives.zip", Path.Combine(Environment.CurrentDirectory, "files", "natives.zip") }};
                 await Downloader.DownloadFilesSequentially(progressBar1, label3, downloadUrlsAndPathsNatives);
+                label3.Text = "Idle";
             }
 
             if (!FileChecker.checkForDirectory(libraries) || FileChecker.IsDirectoryEmpty(libraries)) {
                 Dictionary<string, string> downloadUrlsAndPathsLibraries = new Dictionary<string, string>{
                 { "https://github.com/mark-fy/db/raw/main/libraries.zip", Path.Combine(Environment.CurrentDirectory, "files", "libraries.zip") }};
                 await Downloader.DownloadFilesSequentially(progressBar1, label3, downloadUrlsAndPathsLibraries);
+                label3.Text = "Idle";
             }
 
             if (!FileChecker.checkForDirectory(javaInstall) || FileChecker.IsDirectoryEmpty(javaInstall)) {
                 Dictionary<string, string> downloadUrlsAndPathsLibraries = new Dictionary<string, string>{
                 { "https://github.com/mark-fy/db/raw/main/azul-1.8.9.zip", Path.Combine(Environment.CurrentDirectory, "files", "azul-1.8.9.zip") }};
                 await Downloader.DownloadFilesSequentially(progressBar1, label3, downloadUrlsAndPathsLibraries);
+                label3.Text = "Idle";
             }
 
             launchButton.Enabled = true;
