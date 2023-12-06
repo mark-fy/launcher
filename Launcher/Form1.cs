@@ -1,43 +1,71 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace Launcher {
     public partial class Form1 : Form {
 
+        public Form1() {
+            InitializeComponent();
+        }
+
         private string recode = Path.Combine(Environment.CurrentDirectory, "files\\Recode-b120423.jar");
-        //private string old = Path.Combine(Environment.CurrentDirectory, "files\\Old-0.0.5.jar");
+        private string natives = Path.Combine(Environment.CurrentDirectory, "files\\natives");
+        private string libraries = Path.Combine(Environment.CurrentDirectory, "files\\libraries");
+        private string javaInstall = Path.Combine(Environment.CurrentDirectory, "files\\azul-1.8.9");
 
         [DllImport("Gdi32.dll", EntryPoint = "CreateRoundRectRgn")]
         private static extern IntPtr round
         (
-            int nLeftRect,     // x-coordinate of upper-left corner
-            int nTopRect,      // y-coordinate of upper-left corner
-            int nRightRect,    // x-coordinate of lower-right corner
-            int nBottomRect,   // y-coordinate of lower-right corner
-            int nWidthEllipse, // width of ellipse
-            int nHeightEllipse // height of ellipse
+            int nLeftRect,
+            int nTopRect,
+            int nRightRect,
+            int nBottomRect,
+            int nWidthEllipse,
+            int nHeightEllipse
         );
 
         private bool isDragging = false;
         private Point offset;
 
-        public Form1() {
-            InitializeComponent();
-        }
-
-        private void Form1_Load(object sender, EventArgs e) {
+        private async void Form1_Load(object sender, EventArgs e) {
             this.FormBorderStyle = FormBorderStyle.None;
             Region = Region.FromHrgn(round(0, 0, Width, Height, 20, 20));
             launchButton.Region = Region.FromHrgn(round(0, 0, launchButton.Width, launchButton.Height, 4, 4));
             progressBar1.Region = Region.FromHrgn(round(0, 0, progressBar1.Width, progressBar1.Height, 4, 4));
-            SetupUtil.CreateFolder("files");
-            SetupUtil.CreateFolder(".minecraft");
+            SetupUtil.createFolder("files");
+            SetupUtil.createFolder(".minecraft");
+            if(!FileChecker.checkForDirectory(natives) || FileChecker.IsDirectoryEmpty(natives)) {
 
-            if(!FileChecker.checkForFile(recode)) {
+            }
+            launchButton.Enabled = false;
+
+            if (!FileChecker.checkForDirectory(natives) || FileChecker.IsDirectoryEmpty(natives)) {
+                Dictionary<string, string> downloadUrlsAndPathsNatives = new Dictionary<string, string>{
+            { "https://github.com/mark-fy/db/raw/main/natives.zip", Path.Combine(Environment.CurrentDirectory, "files", "natives.zip") }};
+                await Downloader.DownloadFilesSequentially(progressBar1, label3, downloadUrlsAndPathsNatives);
+            }
+
+            if (!FileChecker.checkForDirectory(libraries) || FileChecker.IsDirectoryEmpty(libraries)) {
+                Dictionary<string, string> downloadUrlsAndPathsLibraries = new Dictionary<string, string>{
+                { "https://github.com/mark-fy/db/raw/main/libraries.zip", Path.Combine(Environment.CurrentDirectory, "files", "libraries.zip") }};
+                await Downloader.DownloadFilesSequentially(progressBar1, label3, downloadUrlsAndPathsLibraries);
+            }
+
+            if (!FileChecker.checkForDirectory(javaInstall) || FileChecker.IsDirectoryEmpty(javaInstall)) {
+                Dictionary<string, string> downloadUrlsAndPathsLibraries = new Dictionary<string, string>{
+                { "https://github.com/mark-fy/db/raw/main/azul-1.8.9.zip", Path.Combine(Environment.CurrentDirectory, "files", "azul-1.8.9.zip") }};
+                await Downloader.DownloadFilesSequentially(progressBar1, label3, downloadUrlsAndPathsLibraries);
+            }
+
+            launchButton.Enabled = true;
+
+            if (!FileChecker.checkForFile(recode)) {
                 launchButton.Text = "Install";
             }
         }
@@ -71,19 +99,16 @@ namespace Launcher {
             }
         }
 
-        private void launchButton_Click(object sender, EventArgs e) {
+        private async void launchButton_Click(object sender, EventArgs e) {
             if (launchButton.Text.Equals("Install")) {
-                
-                if(comboBox1.SelectedItem.Equals("Recode-b120423")) {
-                    JarDownloader.downloadFile(progressBar1, "https://github.com/mark-fy/db/raw/main/Recode-b120423.jar", Path.Combine(Environment.CurrentDirectory, "files\\Recode-b120423.jar"));
+                if (comboBox1.SelectedItem.Equals("Recode-b120423")) {
+                    Downloader.downloadFile(progressBar1, "https://github.com/mark-fy/db/raw/main/Recode-b120423.jar", recode);
                     label3.Text = "Downloading: Recode-b120423.jar";
                     timer1.Enabled = true;
                 }
             } else {
                 string java = Path.Combine(Environment.CurrentDirectory, "files\\azul-1.8.9\\bin\\java.exe");
 
-                string libraries = Path.Combine(Environment.CurrentDirectory, "files\\libraries");
-                string natives = Path.Combine(Environment.CurrentDirectory, "files\\natives");
                 string mainFolder = Path.Combine(Environment.CurrentDirectory, ".minecraft");
 
                 try {
@@ -95,13 +120,14 @@ namespace Launcher {
                     using (Process process = new Process()) {
                         process.StartInfo = startInfo;
                         process.Start();
-                        process.WaitForExit();
+
+                        launchButton.Enabled = false;
+                        await Task.Run(() => process.WaitForExit());
+                        launchButton.Enabled = true;
                     }
-                } catch (Exception ex) {
-                    MessageBox.Show(ex.Message, "Error");
+                } catch (Exception) {
                 }
             }
-
         }
 
         private void comboBox1_SelectedIndexChanged(object sender, EventArgs e) {
