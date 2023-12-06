@@ -29,7 +29,7 @@
     <PublisherName>TopHat</PublisherName>
     <SuiteName>TopHatSuite</SuiteName>
     <OpenBrowserOnPublish>false</OpenBrowserOnPublish>
-    <ApplicationRevision>2</ApplicationRevision>
+    <ApplicationRevision>3</ApplicationRevision>
     <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <PublishWizardCompleted>true</PublishWizardCompleted>
@@ -133,7 +133,7 @@
     <Content Include="resources\256x.ico" />
   </ItemGroup>
   <ItemGroup>
-    <PublishFile Include="256x.ico">
+    <PublishFile Include="resources\256x.ico">
       <Visible>False</Visible>
       <Group>
       </Group>
