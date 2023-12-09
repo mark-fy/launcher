@@ -14,7 +14,6 @@ namespace Launcher {
             InitializeComponent();
         }
 
-        private string recode = Path.Combine(Environment.CurrentDirectory, "files\\Recode-b120423.jar");
         private string natives = Path.Combine(Environment.CurrentDirectory, "files\\natives");
         private string libraries = Path.Combine(Environment.CurrentDirectory, "files\\libraries");
         private string javaInstall = Path.Combine(Environment.CurrentDirectory, "files\\azul-1.8.9");
@@ -34,15 +33,24 @@ namespace Launcher {
         private Point offset;
 
         private async void Form1_Load(object sender, EventArgs e) {
-            this.FormBorderStyle = FormBorderStyle.None;
+            FormBorderStyle = FormBorderStyle.None;
             Region = Region.FromHrgn(round(0, 0, Width, Height, 20, 20));
             launchButton.Region = Region.FromHrgn(round(0, 0, launchButton.Width, launchButton.Height, 4, 4));
             progressBar1.Region = Region.FromHrgn(round(0, 0, progressBar1.Width, progressBar1.Height, 4, 4));
             SetupUtil.createFolder("files");
             SetupUtil.createFolder(".minecraft");
-            if(!FileChecker.checkForDirectory(natives) || FileChecker.IsDirectoryEmpty(natives)) {
 
+            string[] contents = await FileChecker.GetDirectoryContents("versions");
+
+            if (contents != null) {
+                foreach (var item in contents) {
+                    string newName = Path.GetFileNameWithoutExtension(item);
+                    comboBox1.Items.Add(newName);
+                    comboBox1.SelectedItem = newName;
+                    comboBox1.Text = newName;
+                }
             }
+
             launchButton.Enabled = false;
 
             if (!FileChecker.checkForDirectory(natives) || FileChecker.IsDirectoryEmpty(natives)) {
@@ -69,7 +77,7 @@ namespace Launcher {
 
             launchButton.Enabled = true;
 
-            if (!FileChecker.checkForFile(recode)) {
+            if (!FileChecker.checkForFile(Path.Combine(Environment.CurrentDirectory, "files\\" + comboBox1.SelectedItem.ToString() + ".jar"))) {
                 launchButton.Text = "Install";
             }
         }
@@ -104,12 +112,12 @@ namespace Launcher {
         }
 
         private async void launchButton_Click(object sender, EventArgs e) {
+            string selectedItem = comboBox1.SelectedItem.ToString();
+            string recode = Path.Combine(Environment.CurrentDirectory, "files\\" + selectedItem + ".jar");
             if (launchButton.Text.Equals("Install")) {
-                if (comboBox1.SelectedItem.Equals("Recode-b120423")) {
-                    Downloader.downloadFile(progressBar1, "https://github.com/mark-fy/db/raw/main/Recode-b120423.jar", recode);
-                    label3.Text = "Downloading: Recode-b120423.jar";
-                    timer1.Enabled = true;
-                }
+                Downloader.downloadFile(progressBar1, "https://github.com/mark-fy/db/raw/main/versions/" + selectedItem + ".jar", Path.Combine(Environment.CurrentDirectory, "files\\" + selectedItem + ".jar"));
+                label3.Text = "Downloading: " + selectedItem;
+                timer1.Enabled = true;
             } else {
                 string java = Path.Combine(Environment.CurrentDirectory, "files\\azul-1.8.9\\bin\\java.exe");
 
@@ -135,7 +143,9 @@ namespace Launcher {
         }
 
         private void comboBox1_SelectedIndexChanged(object sender, EventArgs e) {
-            if (comboBox1.SelectedItem.Equals("Recode-b120423") && !FileChecker.checkForFile(recode)) {
+            string selectedItem = comboBox1.SelectedItem.ToString();
+            string recode = Path.Combine(Environment.CurrentDirectory, "files\\" + selectedItem + ".jar");
+            if (!FileChecker.checkForFile(recode)) {
                 launchButton.Text = "Install";
             }
         }
