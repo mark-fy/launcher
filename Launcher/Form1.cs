@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
+using System.Net.Http;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -40,45 +41,52 @@ namespace Launcher {
             SetupUtil.createFolder("files");
             SetupUtil.createFolder(".minecraft");
 
-            string[] contents = await FileChecker.GetDirectoryContents("versions");
+            try {
+                string[] contents = await FileChecker.GetDirectoryContents("versions");
 
-            if (contents != null) {
-                foreach (var item in contents) {
-                    string newName = Path.GetFileNameWithoutExtension(item);
-                    comboBox1.Items.Add(newName);
-                    comboBox1.SelectedItem = newName;
-                    comboBox1.Text = newName;
+                if (contents != null) {
+                    foreach (var item in contents) {
+                        string newName = Path.GetFileNameWithoutExtension(item);
+                        comboBox1.Items.Add(newName);
+                        comboBox1.SelectedItem = newName;
+                        comboBox1.Text = newName;
+                    }
                 }
-            }
 
-            launchButton.Enabled = false;
+                launchButton.Enabled = false;
 
-            if (!FileChecker.checkForDirectory(natives) || FileChecker.IsDirectoryEmpty(natives)) {
-                
-                Dictionary<string, string> downloadUrlsAndPathsNatives = new Dictionary<string, string>{
+                if (!FileChecker.checkForDirectory(natives) || FileChecker.IsDirectoryEmpty(natives)) {
+
+                    Dictionary<string, string> downloadUrlsAndPathsNatives = new Dictionary<string, string>{
             { "https://github.com/mark-fy/db/raw/main/natives.zip", Path.Combine(Environment.CurrentDirectory, "files", "natives.zip") }};
-                await Downloader.DownloadFilesSequentially(progressBar1, label3, downloadUrlsAndPathsNatives);
-                label3.Text = "Idle";
-            }
+                    await Downloader.DownloadFilesSequentially(progressBar1, label3, downloadUrlsAndPathsNatives);
+                    label3.Text = "Idle";
+                }
 
-            if (!FileChecker.checkForDirectory(libraries) || FileChecker.IsDirectoryEmpty(libraries)) {
-                Dictionary<string, string> downloadUrlsAndPathsLibraries = new Dictionary<string, string>{
+                if (!FileChecker.checkForDirectory(libraries) || FileChecker.IsDirectoryEmpty(libraries)) {
+                    Dictionary<string, string> downloadUrlsAndPathsLibraries = new Dictionary<string, string>{
                 { "https://github.com/mark-fy/db/raw/main/libraries.zip", Path.Combine(Environment.CurrentDirectory, "files", "libraries.zip") }};
-                await Downloader.DownloadFilesSequentially(progressBar1, label3, downloadUrlsAndPathsLibraries);
-                label3.Text = "Idle";
-            }
+                    await Downloader.DownloadFilesSequentially(progressBar1, label3, downloadUrlsAndPathsLibraries);
+                    label3.Text = "Idle";
+                }
 
-            if (!FileChecker.checkForDirectory(javaInstall) || FileChecker.IsDirectoryEmpty(javaInstall)) {
-                Dictionary<string, string> downloadUrlsAndPathsLibraries = new Dictionary<string, string>{
+                if (!FileChecker.checkForDirectory(javaInstall) || FileChecker.IsDirectoryEmpty(javaInstall)) {
+                    Dictionary<string, string> downloadUrlsAndPathsLibraries = new Dictionary<string, string>{
                 { "https://github.com/mark-fy/db/raw/main/azul-1.8.9.zip", Path.Combine(Environment.CurrentDirectory, "files", "azul-1.8.9.zip") }};
-                await Downloader.DownloadFilesSequentially(progressBar1, label3, downloadUrlsAndPathsLibraries);
-                label3.Text = "Idle";
-            }
+                    await Downloader.DownloadFilesSequentially(progressBar1, label3, downloadUrlsAndPathsLibraries);
+                    label3.Text = "Idle";
+                }
 
-            launchButton.Enabled = true;
+                launchButton.Enabled = true;
 
-            if (!FileChecker.checkForFile(Path.Combine(Environment.CurrentDirectory, "files\\" + comboBox1.SelectedItem.ToString() + ".jar"))) {
-                launchButton.Text = "Install";
+                if (!FileChecker.checkForFile(Path.Combine(Environment.CurrentDirectory, "files\\" + comboBox1.SelectedItem.ToString() + ".jar"))) {
+                    launchButton.Text = "Install";
+                }
+            } catch (HttpRequestException) {
+                MessageBox.Show("No internet connection. Please check your network settings.");
+
+            } catch (Exception ex) {
+                MessageBox.Show($"An error occurred: {ex.Message}");
             }
         }
 
@@ -113,13 +121,20 @@ namespace Launcher {
 
         private async void launchButton_Click(object sender, EventArgs e) {
             string selectedItem = comboBox1.SelectedItem.ToString();
-            string recode = Path.Combine(Environment.CurrentDirectory, "files\\" + selectedItem + ".jar");
+            string recode;
+
+            if(selectedItem == "Vanilla 1.8.9") {
+                recode = Path.Combine(Environment.CurrentDirectory, "files\\libraries\\1.8.9.jar");
+            } else {
+                recode = Path.Combine(Environment.CurrentDirectory, "files\\" + selectedItem + ".jar");
+            }
+
             if (launchButton.Text.Equals("Install")) {
                 Downloader.downloadFile(progressBar1, "https://github.com/mark-fy/db/raw/main/versions/" + selectedItem + ".jar", Path.Combine(Environment.CurrentDirectory, "files\\" + selectedItem + ".jar"));
                 label3.Text = "Downloading: " + selectedItem;
                 timer1.Enabled = true;
             } else {
-                string java = Path.Combine(Environment.CurrentDirectory, "files\\azul-1.8.9\\bin\\java.exe");
+                string java = Path.Combine(Environment.CurrentDirectory, "files\\azul-1.8.9\\bin\\javaw.exe");
 
                 string mainFolder = Path.Combine(Environment.CurrentDirectory, ".minecraft");
 
